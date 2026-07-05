@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download latest IEEE CSV files
         run: |
@@ -50,7 +50,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.git_status.outputs.has_changes == 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "auto-update: Update IEEE MAC address database CSV files, DuckDuckGo JSON files and GeoLite2 database"
