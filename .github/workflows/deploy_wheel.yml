@@ -1,10 +1,20 @@
-name: deploy_wheel
+name: Deploy to PyPi
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
+    inputs:
+      bump_type:
+        type: choice
+        required: true
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+        description: "Select the type of version bump for the release"
+  #push:
+  #  branches:
+  #    - main
 
 # Ensure sequential execution of workflows on the same branch.
 # If a workflow is already running, new pushes will wait in a queue
@@ -19,28 +29,20 @@ jobs:
     outputs:
       v-version: ${{ steps.version.outputs.v-version }}
     steps:
-      # Can be major, minor, or patch, Update secret variable INCREMENT_TYPE in GitHub Actions Settings
-      - name: Set increment type from environment variable
-        run: |
-          if [ -z "${{ secrets.INCREMENT_TYPE }}" ]; then
-            echo "increment=patch" >> $GITHUB_ENV
-          else
-            echo "increment=${{ secrets.INCREMENT_TYPE }}" >> $GITHUB_ENV
-          fi
       - name: Get next version
         uses: reecetech/version-increment@2024.10.1
         id: version
         with:
           release_branch: main
           use_api: true
-          increment: ${{ env.increment }}
+          increment: ${{ github.event.inputs.bump_type || 'patch' }}
 
   build:
     runs-on: ubuntu-latest
     needs: [create_release]
     steps:
     - name: Checkout project sources
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Create wheel file
       run: |
@@ -49,7 +51,7 @@ jobs:
         PRETEND_VERSION=${{ needs.create_release.outputs.v-version }} python3 -m build --wheel .
 
     - name: Store the IoT Core Python wheel
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: iot-core
         path: dist/*.whl
@@ -70,7 +72,7 @@ jobs:
 
     steps:
       - name: Download all the wheel file
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: iot-core
           path: dist/
@@ -81,7 +83,7 @@ jobs:
           verbose: true
 
       - name: Upload wheel and debian packages to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
