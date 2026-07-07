@@ -1,14 +1,19 @@
 Documentation:
-  - '**/*.md'
+  - changed-files:
+    - any-glob-to-any-file: '**/*.md'
 
 Github-files:
-  - '.github/**'
+  - changed-files:
+    - any-glob-to-any-file: '.github/**'
 
 Tests:
-  - 'src/tests/**'
+  - changed-files:
+    - any-glob-to-any-file: 'src/tests/**'
 
 Libinspector-Core:
-  - 'src/libinspector/**.py'
+  - changed-files:
+    - any-glob-to-any-file: 'src/libinspector/**.py'
 
 IEEE-files:
-  - 'src/libinspector/data/**.csv'
+  - changed-files:
+    - any-glob-to-any-file: 'src/libinspector/data/**.csv'
